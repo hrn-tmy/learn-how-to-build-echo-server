@@ -1,6 +1,8 @@
 package main
 
 import (
+	"how-to-build-echo-server/infra"
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -14,6 +16,12 @@ import (
 // Router層の作成
 // 今回はTODOリストを作成する前提でいいかも
 func main() {
+	db, err := infra.NewDB()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer infra.CloseDB(db)
+
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
 		return c.JSON(http.StatusOK, "Hello, Go!")
