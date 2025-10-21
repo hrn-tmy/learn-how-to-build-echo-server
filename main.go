@@ -3,6 +3,7 @@ package main
 import (
 	"how-to-build-echo-server/infra"
 	"how-to-build-echo-server/repository"
+	"how-to-build-echo-server/usecase"
 	"log"
 	"net/http"
 
@@ -23,6 +24,7 @@ func main() {
 	}
 	defer infra.CloseDB(db)
 	repo := repository.NewPostRepository(db)
+	uc := usecase.NewPostUsecase(repo)
 
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
