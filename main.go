@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"how-to-build-echo-server/handler"
 	"how-to-build-echo-server/infra"
 	"how-to-build-echo-server/repository"
 	"how-to-build-echo-server/usecase"
@@ -25,6 +27,7 @@ func main() {
 	defer infra.CloseDB(db)
 	repo := repository.NewPostRepository(db)
 	uc := usecase.NewPostUsecase(repo)
+	h := handler.NewPostHandler(uc)
 
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
