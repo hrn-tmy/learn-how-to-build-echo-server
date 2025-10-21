@@ -2,6 +2,7 @@ package main
 
 import (
 	"how-to-build-echo-server/infra"
+	"how-to-build-echo-server/repository"
 	"log"
 	"net/http"
 
@@ -21,6 +22,7 @@ func main() {
 		log.Fatal(err)
 	}
 	defer infra.CloseDB(db)
+	repo := repository.NewPostRepository(db)
 
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
