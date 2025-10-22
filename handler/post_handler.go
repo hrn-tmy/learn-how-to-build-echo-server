@@ -1,10 +1,13 @@
 package handler
 
 import (
+	"fmt"
 	"how-to-build-echo-server/model"
 	"how-to-build-echo-server/usecase"
 	"net/http"
 	"strconv"
+	"strings"
+	"unicode/utf8"
 
 	"github.com/labstack/echo/v4"
 )
@@ -54,6 +57,11 @@ func (h PostHandler) CreatePost(ctx echo.Context) error {
   if err := ctx.Bind(&data); err != nil {
     return ctx.JSON(http.StatusBadRequest, err)
   }
+
+  if err := validateData(data); err != nil {
+    return ctx.JSON(http.StatusBadRequest, err)
+  }
+
   if err := h.uc.CreatePost(data); err != nil {
     return ctx.JSON(http.StatusInternalServerError, err)
   }
@@ -61,15 +69,19 @@ func (h PostHandler) CreatePost(ctx echo.Context) error {
 }
 
 func (h PostHandler) UpdatePost(ctx echo.Context) error {
+  strPostID := ctx.Param("id")
+  postID, err := strconv.Atoi(strPostID)
+  if err != nil {
+    return ctx.JSON(http.StatusInternalServerError, err)
+  }
+
   var data model.Post
   if err := ctx.Bind(&data); err != nil {
     return ctx.JSON(http.StatusBadRequest, err)
   }
 
-  strPostID := ctx.Param("id")
-  postID, err := strconv.Atoi(strPostID)
-  if err != nil {
-    return ctx.JSON(http.StatusInternalServerError, err)
+  if err := validateData(data); err != nil {
+    return ctx.JSON(http.StatusBadRequest, err)
   }
 
   row, err := h.uc.UpdatePost(data, postID)
@@ -99,4 +111,22 @@ func (h PostHandler) DeletePost(ctx echo.Context) error {
   }
 
 	return ctx.JSON(http.StatusNoContent, nil)
+}
+
+func validateData(data model.Post) error {
+  var errs []string
+  if data.Title == "" {
+    errs = append(errs, "タイトルは必須です。")
+  }
+  if utf8.RuneCountInString(data.Title) > 255 {
+    errs = append(errs, "タイトルは255文字以下で指定してください。")
+  }
+  if data.Body == "" {
+    errs = append(errs, "本文は必須です。")
+  }
+  if len(errs) > 0 {
+    return fmt.Errorf("%s", strings.Join(errs, ", "))
+  }
+
+  return nil
 }
