@@ -12,6 +12,7 @@ import (
 type IPostRepository interface {
 	GetPosts() ([]model.Post, error)
   GetPost(postID int) (model.Post, error)
+  CreatePost(data model.Post) error
 }
 
 type PostRepository struct {
@@ -41,4 +42,12 @@ func (r PostRepository) GetPost(postID int) (model.Post, error) {
     return model.Post{}, fmt.Errorf("レコードが存在しません。")
   }
   return post, nil
+}
+
+func (r PostRepository) CreatePost(data model.Post) error {
+  ctx := context.Background()
+  if err := gorm.G[model.Post](r.DB).Create(ctx, &data); err != nil {
+    return err
+  }
+  return nil
 }

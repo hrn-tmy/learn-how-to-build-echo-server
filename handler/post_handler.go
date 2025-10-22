@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"how-to-build-echo-server/model"
 	"how-to-build-echo-server/usecase"
 	"net/http"
 	"strconv"
@@ -49,7 +50,14 @@ func (h PostHandler) GetPost(ctx echo.Context) error {
 }
 
 func (h PostHandler) CreatePost(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, nil)
+  var data model.Post
+  if err := ctx.Bind(&data); err != nil {
+    return ctx.JSON(http.StatusBadRequest, err)
+  }
+  if err := h.uc.CreatePost(data); err != nil {
+    return ctx.JSON(http.StatusInternalServerError, err)
+  }
+	return ctx.JSON(http.StatusCreated, nil)
 }
 
 func (h PostHandler) UpdatePost(ctx echo.Context) error {
