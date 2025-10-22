@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
@@ -13,35 +14,35 @@ import (
 	"gorm.io/gorm"
 )
 
-type post struct {
-  postID int `gorm:"primaryKey"`
-  title string
-  body string
-  createdAt time.Time
-  updateAt time.Time
-  deletedAt gorm.DeletedAt
+type Post struct {
+  PostID int `gorm:"primaryKey"`
+  Title string
+  Body string
+  CreatedAt time.Time
+  UpdateAt time.Time
+  DeletedAt gorm.DeletedAt
 }
 
-type dbConfig struct {
-  user string
-  password string
-  host string
-  port string
-  name string
+type DBConfig struct {
+  User string
+  Password string
+  Host string
+  Port string
+  Name string
 }
 
 func newDB() (*gorm.DB, error) {
   if err := godotenv.Load(); err != nil {
     log.Fatal(err)
   }
-  cfg := dbConfig{
-    user: os.Getenv("DB_USER"),
-    password: os.Getenv("DB_PASSWORD"),
-    host: os.Getenv("DB_HOST"),
-    port: os.Getenv("DB_PORT"),
-    name: os.Getenv("DB_NAME"),
+  cfg := DBConfig{
+    User: os.Getenv("DB_USER"),
+    Password: os.Getenv("DB_PASSWORD"),
+    Host: os.Getenv("DB_HOST"),
+    Port: os.Getenv("DB_PORT"),
+    Name: os.Getenv("DB_NAME"),
   }
-  dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", cfg.user, cfg.password, cfg.host, cfg.port, cfg.name)
+  dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Name)
   db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
   if err != nil {
     return nil, err
@@ -52,8 +53,27 @@ func newDB() (*gorm.DB, error) {
 
 func main() {
 	e := echo.New()
-	e.GET("/", func(c echo.Context) error {
-		return c.JSON(http.StatusOK, "Hello, Go!")
+  db, err := newDB()
+  if err != nil {
+    log.Fatal(err)
+  }
+  sqlDB, err := db.DB()
+  if err != nil {
+    log.Fatal(err)
+  }
+  if err := sqlDB.Close(); err != nil {
+    log.Fatal(err)
+  }
+
+	// 一覧取得
+  e.GET("/posts", func(ctx echo.Context) error {
+    c := context.Background()
+    posts, err := gorm.G[Post](db).Find(c)
+    if err != nil {
+      return ctx.JSON(http.StatusInternalServerError, err.Error())
+    }
+		return ctx.JSON(http.StatusOK, posts)
 	})
+
 	e.Logger.Fatal(e.Start(":8080"))
 }
