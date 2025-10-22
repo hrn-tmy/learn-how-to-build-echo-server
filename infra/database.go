@@ -2,6 +2,7 @@ package infra
 
 import (
 	"fmt"
+	"how-to-build-echo-server/model"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -31,6 +32,10 @@ func NewDB() (*gorm.DB, error) {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", cfg.User, cfg.Password, cfg.Host, cfg.Port, cfg.Name)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
+		return nil, err
+	}
+
+	if err := db.AutoMigrate(&model.User{}, &model.Post{}); err != nil {
 		return nil, err
 	}
 
