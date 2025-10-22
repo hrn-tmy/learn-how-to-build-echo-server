@@ -61,6 +61,25 @@ func (h PostHandler) CreatePost(ctx echo.Context) error {
 }
 
 func (h PostHandler) UpdatePost(ctx echo.Context) error {
+  var data model.Post
+  if err := ctx.Bind(&data); err != nil {
+    return ctx.JSON(http.StatusBadRequest, err)
+  }
+
+  strPostID := ctx.Param("id")
+  postID, err := strconv.Atoi(strPostID)
+  if err != nil {
+    return ctx.JSON(http.StatusInternalServerError, err)
+  }
+  
+  row, err := h.uc.UpdatePost(data, postID)
+  if err != nil {
+    return ctx.JSON(http.StatusInternalServerError, err)
+  }
+  if row == 0 {
+    return ctx.JSON(http.StatusNotFound, err)
+  }
+  
 	return ctx.JSON(http.StatusOK, nil)
 }
 
