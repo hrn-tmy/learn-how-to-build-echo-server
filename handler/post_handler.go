@@ -24,7 +24,11 @@ func NewPostHandler(uc usecase.IPostUsecase) IPostHandler {
 }
 
 func (h PostHandler) GetPosts(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, nil)
+	posts, err := h.uc.GetPosts()
+	if err != nil {
+		return err
+	}
+	return ctx.JSON(http.StatusOK, posts)
 }
 
 func (h PostHandler) GetPost(ctx echo.Context) error {
