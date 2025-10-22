@@ -71,18 +71,32 @@ func (h PostHandler) UpdatePost(ctx echo.Context) error {
   if err != nil {
     return ctx.JSON(http.StatusInternalServerError, err)
   }
-  
+
   row, err := h.uc.UpdatePost(data, postID)
-  if err != nil {
-    return ctx.JSON(http.StatusInternalServerError, err)
-  }
   if row == 0 {
     return ctx.JSON(http.StatusNotFound, err)
+  }
+  if err != nil {
+    return ctx.JSON(http.StatusInternalServerError, err)
   }
   
 	return ctx.JSON(http.StatusOK, nil)
 }
 
 func (h PostHandler) DeletePost(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, nil)
+  strPostID := ctx.Param("id")
+  postID, err := strconv.Atoi(strPostID)
+  if err != nil {
+    return ctx.JSON(http.StatusInternalServerError, err)
+  }
+
+  row, err := h.uc.DeletePost(postID)
+  if row == 0 {
+    return ctx.JSON(http.StatusNotFound, err)
+  }
+  if err != nil {
+    return ctx.JSON(http.StatusInternalServerError, err)
+  }
+
+	return ctx.JSON(http.StatusNoContent, nil)
 }

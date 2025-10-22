@@ -10,6 +10,7 @@ type IPostUsecase interface {
   GetPost(postID int) (model.Post, error)
   CreatePost(data model.Post) error
   UpdatePost(data model.Post, postID int) (int, error)
+  DeletePost(postID int) (int, error)
 }
 
 type PostUsecase struct {
@@ -45,6 +46,14 @@ func (uc PostUsecase) CreatePost(data model.Post) error {
 
 func (uc PostUsecase) UpdatePost(data model.Post, postID int) (int, error) {
   row, err := uc.repo.UpdatePost(data, postID)
+  if err != nil {
+    return row, err
+  }
+  return row, nil
+}
+
+func (uc PostUsecase) DeletePost(postID int) (int, error) {
+  row, err := uc.repo.DeletePost(postID)
   if err != nil {
     return row, err
   }

@@ -14,6 +14,7 @@ type IPostRepository interface {
   GetPost(postID int) (model.Post, error)
   CreatePost(data model.Post) error
   UpdatePost(data model.Post, postID int) (int, error)
+  DeletePost(postID int) (int, error)
 }
 
 type PostRepository struct {
@@ -61,6 +62,18 @@ func (r PostRepository) UpdatePost(data model.Post, postID int) (int, error) {
   }
   if err != nil {
     return row, err
+  }
+  return row, nil
+}
+
+func (r PostRepository) DeletePost(postID int) (int, error) {
+  ctx := context.Background()
+  row, err := gorm.G[model.Post](r.DB).Where("post_id = ?", postID).Delete(ctx)
+  if err != nil {
+    return row, err
+  }
+  if row == 0 {
+    return row, fmt.Errorf("レコードが存在しません。")
   }
   return row, nil
 }
