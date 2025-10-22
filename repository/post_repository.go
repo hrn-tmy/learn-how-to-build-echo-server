@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"how-to-build-echo-server/model"
 
 	"gorm.io/gorm"
@@ -9,6 +11,7 @@ import (
 
 type IPostRepository interface {
 	GetPosts() ([]model.Post, error)
+  GetPost(postID int) (model.Post, error)
 }
 
 type PostRepository struct {
@@ -26,4 +29,16 @@ func (r PostRepository) GetPosts() ([]model.Post, error) {
 		return nil, err
 	}
 	return posts, nil
+}
+
+func (r PostRepository) GetPost(postID int) (model.Post, error) {
+  ctx := context.Background()
+  post, err := gorm.G[model.Post](r.DB).Where("post_id = ?", postID).Take(ctx)
+  if err != nil {
+    return model.Post{}, err
+  }
+  if errors.Is(err, gorm.ErrRecordNotFound) {
+    return model.Post{}, fmt.Errorf("レコードが存在しません。")
+  }
+  return post, nil
 }

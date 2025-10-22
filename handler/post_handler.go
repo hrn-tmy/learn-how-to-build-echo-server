@@ -3,6 +3,7 @@ package handler
 import (
 	"how-to-build-echo-server/usecase"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo/v4"
 )
@@ -32,7 +33,19 @@ func (h PostHandler) GetPosts(ctx echo.Context) error {
 }
 
 func (h PostHandler) GetPost(ctx echo.Context) error {
-	return ctx.JSON(http.StatusOK, nil)
+  strPostID := ctx.Param("id")
+  postID, err := strconv.Atoi(strPostID)
+  if err != nil {
+    return ctx.JSON(http.StatusInternalServerError, err)
+  }
+  post, err := h.uc.GetPost(postID)
+  if post.PostID == 0 {
+    return ctx.JSON(http.StatusNotFound, err)
+  }
+  if err != nil {
+    return ctx.JSON(http.StatusInternalServerError, err)
+  }
+	return ctx.JSON(http.StatusOK, post)
 }
 
 func (h PostHandler) CreatePost(ctx echo.Context) error {

@@ -8,7 +8,6 @@ import (
 
 type Post struct {
 	PostID    int `gorm:"primaryKey"`
-	UserID    int
 	Title     string         `gorm:"not null"`
 	Body      string         `gorm:"not null"`
 	CreatedAt time.Time      `gorm:"type:timestamptz(0)"`

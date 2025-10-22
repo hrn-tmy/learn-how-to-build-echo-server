@@ -7,6 +7,7 @@ import (
 
 type IPostUsecase interface {
 	GetPosts() ([]model.Post, error)
+  GetPost(postID int) (model.Post, error)
 }
 
 type PostUsecase struct {
@@ -23,4 +24,12 @@ func (uc PostUsecase) GetPosts() ([]model.Post, error) {
 		return nil, err
 	}
 	return posts, nil
+}
+
+func (uc PostUsecase) GetPost(postID int) (model.Post, error) {
+  post, err := uc.repo.GetPost(postID)
+  if err != nil {
+    return model.Post{}, err
+  }
+  return post, nil
 }

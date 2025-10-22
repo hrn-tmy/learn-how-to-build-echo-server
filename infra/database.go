@@ -35,7 +35,7 @@ func NewDB() (*gorm.DB, error) {
 		return nil, err
 	}
 
-	if err := db.AutoMigrate(&model.User{}, &model.Post{}); err != nil {
+	if err := db.AutoMigrate(&model.Post{}); err != nil {
 		return nil, err
 	}
 
