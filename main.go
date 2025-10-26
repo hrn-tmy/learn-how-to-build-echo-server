@@ -75,5 +75,16 @@ func main() {
 		return ctx.JSON(http.StatusOK, posts)
 	})
 
+  // 詳細取得
+
+
+  // 登録
+
+
+  // 更新
+
+
+  // 削除
+
 	e.Logger.Fatal(e.Start(":8080"))
 }
